@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark">
+
+    <!-- Status bar -->
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:textColor="@color/text_primary"
+        android:textSize="13sp"
+        android:gravity="center"
+        android:background="@color/surface_dark" />
+
+    <!-- Spectrogram (takes remaining space) -->
+    <com.subbysound.SpectrogramView
+        android:id="@+id/spectrogramView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/bg_dark" />
+
+    <!-- Selection info -->
+    <TextView
+        android:id="@+id/selectionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="6dp"
+        android:textColor="@color/accent_yellow"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:text="@string/drag_to_select"
+        android:background="@color/surface_dark" />
+
+    <!-- Filter controls (shown during playback only) -->
+    <LinearLayout
+        android:id="@+id/filterControls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:background="@color/surface_dark"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/freq_shift_label"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:gravity="center" />
+
+        <SeekBar
+            android:id="@+id/shiftSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:progressTint="@color/accent_yellow"
+            android:thumbTint="@color/accent_yellow" />
+
+        <TextView
+            android:id="@+id/shiftValueText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Shift: +0 Hz"
+            android:textColor="@color/accent_yellow"
+            android:textSize="13sp"
+            android:gravity="center" />
+
+        <Button
+            android:id="@+id/clearSelectionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="4dp"
+            android:text="@string/clear_selection"
+            android:textSize="12sp"
+            android:backgroundTint="@color/surface_mid"
+            android:textColor="@color/text_primary" />
+    </LinearLayout>
+
+    <!-- Transport buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="12dp"
+        android:background="@color/surface_dark">
+
+        <Button
+            android:id="@+id/recordButton"
+            android:layout_width="120dp"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="8dp"
+            android:text="@string/btn_record"
+            android:backgroundTint="@color/record_red"
+            android:textColor="@color/text_primary" />
+
+        <Button
+            android:id="@+id/playButton"
+            android:layout_width="120dp"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="8dp"
+            android:text="@string/btn_play"
+            android:backgroundTint="@color/play_green"
+            android:textColor="@color/text_primary" />
+
+        <Button
+            android:id="@+id/stopButton"
+            android:layout_width="120dp"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="8dp"
+            android:text="@string/btn_stop"
+            android:backgroundTint="@color/stop_orange"
+            android:textColor="@color/text_primary"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</LinearLayout>

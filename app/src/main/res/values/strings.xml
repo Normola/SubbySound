@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SubbySound</string>
+    <string name="btn_record">Record</string>
+    <string name="btn_play">Play</string>
+    <string name="btn_stop">Stop</string>
+    <string name="clear_selection">Clear Selection</string>
+    <string name="drag_to_select">Drag on spectrogram to isolate a frequency band</string>
+    <string name="freq_shift_label">Frequency Shift (bring inaudible frequencies into range)</string>
+    <string name="status_idle">Ready — tap Record to start</string>
+    <string name="status_idle_has_recording">Recording ready — tap Play or Record again</string>
+    <string name="status_recording">Recording… tap Stop when done</string>
+    <string name="status_playing">Playing — drag spectrogram to isolate frequencies</string>
+</resources>

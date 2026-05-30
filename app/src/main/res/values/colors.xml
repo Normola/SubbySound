@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_dark">#FF0A0A0F</color>
+    <color name="surface_dark">#FF121218</color>
+    <color name="surface_mid">#FF1E1E28</color>
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#FFAAAACC</color>
+    <color name="accent_yellow">#FFFFE033</color>
+    <color name="record_red">#FFCC2233</color>
+    <color name="play_green">#FF22AA44</color>
+    <color name="stop_orange">#FFCC6600</color>
+</resources>

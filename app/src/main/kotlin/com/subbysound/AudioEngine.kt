@@ -6,7 +6,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresPermission
 import java.io.File
-import kotlin.math.abs
 
 class AudioEngine {
 
@@ -47,9 +46,10 @@ class AudioEngine {
             AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
         val bufSize = maxOf(minBuf, HOP_SIZE * 2)
 
-        audioRecord = AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,
+        val recorder = AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,
             AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufSize)
-        audioRecord!!.startRecording()
+        audioRecord = recorder
+        recorder.startRecording()
         state = State.RECORDING
         running = true
 
@@ -58,8 +58,11 @@ class AudioEngine {
             val buffer = ShortArray(HOP_SIZE)
             try {
                 while (running) {
-                    val n = audioRecord!!.read(buffer, 0, HOP_SIZE)
-                    if (n <= 0) continue
+                    val n = recorder.read(buffer, 0, HOP_SIZE)
+                    if (n <= 0) {
+                        if (!running) break
+                        continue
+                    }
                     wavWriter.write(buffer, n)
                     val mags = fft.computeMagnitudesDb(buffer, 0, n)
                     mainHandler.post { onFFTData?.invoke(mags) }
@@ -76,7 +79,7 @@ class AudioEngine {
             AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)
         val bufSize = maxOf(minBuf, HOP_SIZE * 4)
 
-        audioTrack = AudioTrack.Builder()
+        val track = AudioTrack.Builder()
             .setAudioAttributes(AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_MEDIA)
                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -89,8 +92,9 @@ class AudioEngine {
             .setBufferSizeInBytes(bufSize)
             .setTransferMode(AudioTrack.MODE_STREAM)
             .build()
+        audioTrack = track
 
-        audioTrack!!.play()
+        track.play()
         state = State.PLAYING
         running = true
 
@@ -101,11 +105,15 @@ class AudioEngine {
             val inputHistory = DoubleArray(FFT_SIZE)
             val olaBuffer = FloatArray(FFT_SIZE)
             val readBuf = ShortArray(HOP_SIZE)
+            var completedPlayback = false
 
             try {
                 while (running) {
                     val n = wavReader.read(readBuf, 0, HOP_SIZE)
-                    if (n <= 0) break
+                    if (n <= 0) {
+                        completedPlayback = running
+                        break
+                    }
 
                     // Shift input history and append new samples
                     System.arraycopy(inputHistory, HOP_SIZE, inputHistory, 0, HOP_SIZE)
@@ -133,7 +141,7 @@ class AudioEngine {
                     val output = ShortArray(HOP_SIZE) { i ->
                         (olaBuffer[i] * 32768.0).coerceIn(-32767.0, 32767.0).toInt().toShort()
                     }
-                    audioTrack!!.write(output, 0, HOP_SIZE)
+                    track.write(output, 0, HOP_SIZE)
 
                     // Post FFT of what's being played for spectrogram display
                     val dispMags = fft.computeMagnitudesDb(output)
@@ -145,20 +153,44 @@ class AudioEngine {
                 }
             } finally {
                 wavReader.close()
-                mainHandler.post { onPlaybackComplete?.invoke() }
+                if (completedPlayback) {
+                    mainHandler.post { onPlaybackComplete?.invoke() }
+                }
             }
         }.also { it.start() }
     }
 
     fun stop() {
         running = false
-        audioRecord?.let { it.stop(); it.release(); audioRecord = null }
-        audioTrack?.let { it.stop(); it.release(); audioTrack = null }
-        recordThread?.join(500)
-        playThread?.join(500)
+        stopAudioRecord()
+        stopAudioTrack()
+        recordThread?.join()
+        playThread?.join()
+        audioRecord?.release()
+        audioTrack?.release()
+        audioRecord = null
+        audioTrack = null
         recordThread = null; playThread = null
         state = State.IDLE
     }
 
     fun release() = stop()
+
+    private fun stopAudioRecord() {
+        audioRecord?.let {
+            try {
+                it.stop()
+            } catch (_: IllegalStateException) {
+            }
+        }
+    }
+
+    private fun stopAudioTrack() {
+        audioTrack?.let {
+            try {
+                it.stop()
+            } catch (_: IllegalStateException) {
+            }
+        }
+    }
 }

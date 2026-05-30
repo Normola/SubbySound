@@ -94,27 +94,30 @@
 
         <Button
             android:id="@+id/recordButton"
-            android:layout_width="120dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginHorizontal="4dp"
+            android:layout_weight="1"
             android:text="@string/btn_record"
             android:backgroundTint="@color/record_red"
             android:textColor="@color/text_primary" />
 
         <Button
             android:id="@+id/playButton"
-            android:layout_width="120dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginHorizontal="4dp"
+            android:layout_weight="1"
             android:text="@string/btn_play"
             android:backgroundTint="@color/play_green"
             android:textColor="@color/text_primary" />
 
         <Button
             android:id="@+id/stopButton"
-            android:layout_width="120dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginHorizontal="4dp"
+            android:layout_weight="1"
             android:text="@string/btn_stop"
             android:backgroundTint="@color/stop_orange"
             android:textColor="@color/text_primary"

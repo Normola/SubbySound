@@ -175,8 +175,6 @@ class SpectrogramView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_UP -> {
                 if (!hasSelection) {
-                    selAnchorY = -1f; selCurrentY = -1f
-                    onSelectionCleared?.invoke()
                     performClick()
                 }
                 invalidate()
@@ -192,6 +190,11 @@ class SpectrogramView @JvmOverloads constructor(
     }
 
     override fun performClick(): Boolean {
+        selAnchorY = -1f
+        selCurrentY = -1f
+        hasSelection = false
+        onSelectionCleared?.invoke()
+        invalidate()
         super.performClick()
         return true
     }

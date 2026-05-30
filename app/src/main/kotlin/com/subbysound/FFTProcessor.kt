@@ -2,7 +2,7 @@ package com.subbysound
 
 import kotlin.math.*
 
-class FFTProcessor(val size: Int, val sampleRate: Int = AudioEngine.SAMPLE_RATE) {
+class FFTProcessor(val size: Int, val sampleRate: Int = AudioConfig.SAMPLE_RATE) {
 
     private val log2Size = Integer.numberOfTrailingZeros(size)
     private val bitReverse = IntArray(size) { reverseBits(it, log2Size) }

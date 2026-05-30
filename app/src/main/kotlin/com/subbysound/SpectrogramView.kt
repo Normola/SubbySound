@@ -14,8 +14,8 @@ class SpectrogramView @JvmOverloads constructor(
     var onSelectionChanged: ((lowHz: Float, highHz: Float) -> Unit)? = null
     var onSelectionCleared: (() -> Unit)? = null
 
-    private var sampleRate = AudioEngine.SAMPLE_RATE
-    private val fftSize = AudioEngine.FFT_SIZE
+    private var sampleRate = AudioConfig.SAMPLE_RATE
+    private val fftSize = AudioConfig.FFT_SIZE
 
     // Color LUT: maps [0,255] to ARGB
     private val colorLut = buildColorLut()

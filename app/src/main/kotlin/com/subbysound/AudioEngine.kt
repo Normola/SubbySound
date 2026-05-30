@@ -9,9 +9,9 @@ import kotlin.math.abs
 class AudioEngine {
 
     companion object {
-        const val SAMPLE_RATE = 44100
-        const val FFT_SIZE = 2048
-        const val HOP_SIZE = FFT_SIZE / 2
+        val SAMPLE_RATE get() = AudioConfig.SAMPLE_RATE
+        val FFT_SIZE get() = AudioConfig.FFT_SIZE
+        val HOP_SIZE get() = AudioConfig.HOP_SIZE
     }
 
     enum class State { IDLE, RECORDING, PLAYING }

@@ -1,6 +1,7 @@
 package com.subbysound
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
@@ -109,6 +110,8 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    // Permission is checked by checkAudioPermission() / onRequestPermissionsResult before this is called
+    @SuppressLint("MissingPermission")
     private fun startRecording() {
         binding.spectrogramView.clearSpectrogram()
         engine.startRecording(recordingFile)

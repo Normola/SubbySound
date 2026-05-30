@@ -110,10 +110,16 @@ class AudioEngine {
             try {
                 while (running) {
                     val n = wavReader.read(readBuf, 0, HOP_SIZE)
-                    if (n <= 0) {
-                        completedPlayback = running
-                        break
-                    }
+if (n <= 0) {
+    if (running) {
+        val tail = ShortArray(HOP_SIZE) { i ->
+            (olaBuffer[i] * 32768.0).coerceIn(-32767.0, 32767.0).toInt().toShort()
+        }
+        track.write(tail, 0, HOP_SIZE)
+        completedPlayback = true
+    }
+    break
+}
 
                     // Shift input history and append new samples
                     System.arraycopy(inputHistory, HOP_SIZE, inputHistory, 0, HOP_SIZE)

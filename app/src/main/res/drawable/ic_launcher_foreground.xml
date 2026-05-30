@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Sound wave bars representing a spectrogram -->
+    <path android:fillColor="#FFE033"
+        android:pathData="M20,70 L20,38 L28,38 L28,70 Z" />
+    <path android:fillColor="#FFE033"
+        android:pathData="M32,70 L32,50 L40,50 L40,70 Z" />
+    <path android:fillColor="#FFE033"
+        android:pathData="M44,70 L44,30 L52,30 L52,70 Z" />
+    <path android:fillColor="#FFE033"
+        android:pathData="M56,70 L56,44 L64,44 L64,70 Z" />
+    <path android:fillColor="#FFE033"
+        android:pathData="M68,70 L68,56 L76,56 L76,70 Z" />
+    <path android:fillColor="#FFE033"
+        android:pathData="M80,70 L80,42 L88,42 L88,70 Z" />
+</vector>

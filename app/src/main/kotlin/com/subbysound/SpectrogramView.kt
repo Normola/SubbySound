@@ -93,7 +93,9 @@ class SpectrogramView @JvmOverloads constructor(
         pixelBuf.fill(Color.BLACK)
         spectBitmap?.setPixels(pixelBuf, 0, bmpWidth, 0, 0, bmpWidth, bmpHeight)
         writeCol = 0
+        val hadSelection = hasSelection
         hasSelection = false
+        if (hadSelection) onSelectionCleared?.invoke()
         postInvalidate()
     }
 

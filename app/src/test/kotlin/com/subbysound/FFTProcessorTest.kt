@@ -83,6 +83,38 @@ class FFTProcessorTest {
     }
 
     @Test
+    fun frequencyShiftMovesPeakByExpectedBinOffset() {
+        // Tone at 1000 Hz shifted up by a fixed number of bins; verify peak lands at the target bin
+        val hz = 1000f
+        val shiftBins = 20
+        val srcBin = fft.hzToBin(hz)
+        val expectedBin = srcBin + shiftBins
+
+        val samples = ShortArray(2048) { n ->
+            (Short.MAX_VALUE * sin(2.0 * PI * hz * n / AudioConfig.SAMPLE_RATE)).toInt().toShort()
+        }
+        val real = DoubleArray(2048) { samples[it] / 32768.0 }
+        val imag = DoubleArray(2048)
+        fft.fft(real, imag)
+
+        fft.applyFilterAndShift(
+            real, imag,
+            binLow = (srcBin - 5).coerceAtLeast(0),
+            binHigh = srcBin + 5,
+            shiftBins = shiftBins
+        )
+
+        val half = 2048 / 2
+        val mags = FloatArray(half) { i -> sqrt(real[i] * real[i] + imag[i] * imag[i]).toFloat() }
+        val peakBin = mags.indices.maxByOrNull { mags[it] }!!
+
+        assertTrue(
+            "Peak at bin $peakBin, expected near $expectedBin after shift of $shiftBins bins",
+            abs(peakBin - expectedBin) <= 2
+        )
+    }
+
+    @Test
     fun filterAndShiftPreservesInBandContent() {
         // Tone at 1000 Hz; filter centred on that frequency should let it through
         val hz = 1000f

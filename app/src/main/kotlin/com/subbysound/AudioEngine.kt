@@ -1,8 +1,10 @@
 package com.subbysound
 
+import android.Manifest
 import android.media.*
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.RequiresPermission
 import java.io.File
 import kotlin.math.abs
 
@@ -38,6 +40,7 @@ class AudioEngine {
 
     @Volatile private var running = false
 
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     fun startRecording(file: File) {
         if (state != State.IDLE) return
         val minBuf = AudioRecord.getMinBufferSize(SAMPLE_RATE,

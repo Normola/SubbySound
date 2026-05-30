@@ -51,6 +51,12 @@ class SpectrogramView @JvmOverloads constructor(
 
     private val axisW = 76f
 
+    // Pre-allocated objects reused across onDraw calls (avoids DrawAllocation lint error)
+    private val axisBgPaint = Paint().apply { color = Color.BLACK }
+    private val srcRect = Rect()
+    private val dstRect = RectF()
+    private val selRect = RectF()
+
     override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {
         super.onSizeChanged(w, h, oldW, oldH)
         bmpWidth = (w - axisW).toInt().coerceAtLeast(1)
@@ -96,26 +102,24 @@ class SpectrogramView @JvmOverloads constructor(
         val w = width.toFloat(); val h = height.toFloat()
 
         // Draw axis background
-        canvas.drawRect(0f, 0f, axisW, h, Paint().apply { color = Color.BLACK })
+        canvas.drawRect(0f, 0f, axisW, h, axisBgPaint)
 
         val bmp = spectBitmap
         if (bmp != null && bmpWidth > 0) {
-            // Draw ring buffer in two parts so newest data appears on right
-            val leftPart = bmpWidth - writeCol   // columns from writeCol..end = oldest
-            val rightPart = writeCol              // columns 0..writeCol-1 = newest
-
+            val leftPart = bmpWidth - writeCol
+            val rightPart = writeCol
             val spectX = axisW
             val pixPerCol = (w - axisW) / bmpWidth
 
             if (leftPart > 0) {
-                val src = Rect(writeCol, 0, bmpWidth, bmpHeight)
-                val dst = RectF(spectX, 0f, spectX + leftPart * pixPerCol, h)
-                canvas.drawBitmap(bmp, src, dst, drawPaint)
+                srcRect.set(writeCol, 0, bmpWidth, bmpHeight)
+                dstRect.set(spectX, 0f, spectX + leftPart * pixPerCol, h)
+                canvas.drawBitmap(bmp, srcRect, dstRect, drawPaint)
             }
             if (rightPart > 0) {
-                val src = Rect(0, 0, writeCol, bmpHeight)
-                val dst = RectF(spectX + leftPart * pixPerCol, 0f, w, h)
-                canvas.drawBitmap(bmp, src, dst, drawPaint)
+                srcRect.set(0, 0, writeCol, bmpHeight)
+                dstRect.set(spectX + leftPart * pixPerCol, 0f, w, h)
+                canvas.drawBitmap(bmp, srcRect, dstRect, drawPaint)
             }
         }
 
@@ -143,9 +147,9 @@ class SpectrogramView @JvmOverloads constructor(
     private fun drawSelection(canvas: Canvas, h: Float) {
         val top = minOf(selAnchorY, selCurrentY)
         val bot = maxOf(selAnchorY, selCurrentY)
-        val rect = RectF(axisW, top, width.toFloat(), bot)
-        canvas.drawRect(rect, selFillPaint)
-        canvas.drawRect(rect, selStrokePaint)
+        selRect.set(axisW, top, width.toFloat(), bot)
+        canvas.drawRect(selRect, selFillPaint)
+        canvas.drawRect(selRect, selStrokePaint)
 
         val loHz = yToHz(bot, h)
         val hiHz = yToHz(top, h)
@@ -170,7 +174,11 @@ class SpectrogramView @JvmOverloads constructor(
                 invalidate()
             }
             MotionEvent.ACTION_UP -> {
-                if (!hasSelection) { selAnchorY = -1f; selCurrentY = -1f; onSelectionCleared?.invoke() }
+                if (!hasSelection) {
+                    selAnchorY = -1f; selCurrentY = -1f
+                    onSelectionCleared?.invoke()
+                    performClick()
+                }
                 invalidate()
             }
         }
@@ -181,6 +189,11 @@ class SpectrogramView @JvmOverloads constructor(
         val loHz = yToHz(maxOf(selAnchorY, selCurrentY), h)
         val hiHz = yToHz(minOf(selAnchorY, selCurrentY), h)
         onSelectionChanged?.invoke(loHz, hiHz)
+    }
+
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
     }
 
     fun clearSelection() {

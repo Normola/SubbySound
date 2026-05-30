@@ -11,4 +11,5 @@
     <string name="status_idle_has_recording">Recording ready — tap Play or Record again</string>
     <string name="status_recording">Recording… tap Stop when done</string>
     <string name="status_playing">Playing — drag spectrogram to isolate frequencies</string>
+    <string name="shift_default">Shift: +0 Hz</string>
 </resources>

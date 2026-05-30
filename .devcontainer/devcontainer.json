@@ -1,0 +1,29 @@
+{
+  "name": "SubbySound Android Dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "ms-vscode.vscode-gradle",
+        "redhat.vscode-yaml"
+      ],
+      "settings": {
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "files.eol": "\n"
+      }
+    }
+  },
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "ANDROID_HOME": "/usr/local/android-sdk",
+    "ANDROID_SDK_ROOT": "/usr/local/android-sdk"
+  },
+  "postCreateCommand": "./gradlew --version",
+  "mounts": [
+    "source=gradle-cache,target=/home/vscode/.gradle,type=volume"
+  ]
+}

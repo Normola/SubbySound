@@ -38,6 +38,22 @@ android {
         htmlReport true
         xmlReport true
     }
+
+    signingConfigs {
+        release {
+            storeFile     file(System.getenv("KEYSTORE_PATH") ?: "subbysound-release.jks")
+            storePassword System.getenv("KEYSTORE_PASS") ?: ""
+            keyAlias      System.getenv("KEY_ALIAS")    ?: "subbysound"
+            keyPassword   System.getenv("KEY_PASS")     ?: ""
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
 }
 
 dependencies {

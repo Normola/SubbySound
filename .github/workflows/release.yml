@@ -45,6 +45,7 @@ jobs:
         run: |
           TAG="${{ github.ref_name }}"
           REPO="${{ github.repository }}"
+          APK_FILE=$(ls app/build/outputs/apk/release/*.apk | head -1)
           APK_URL="https://github.com/${REPO}/releases/download/${TAG}/SubbySound-${TAG}.apk"
           ENCODED_URL=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$APK_URL")
           QR_URL="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ENCODED_URL}"
@@ -52,11 +53,11 @@ jobs:
           gh api "repos/${REPO}/releases/generate-notes" \
             --method POST \
             -f tag_name="${TAG}" \
-            --jq '.body' > notes.md
+            --jq '.body' > notes.md || echo "" > notes.md
 
           printf '\n\n## Download\n\nScan to install the APK directly on your device:\n\n![QR Code](%s)\n' "$QR_URL" >> notes.md
 
           gh release create "${TAG}" \
             --title "SubbySound ${TAG}" \
             --notes-file notes.md \
-            "app/build/outputs/apk/release/*.apk#SubbySound-${TAG}.apk"
+            "${APK_FILE}#SubbySound-${TAG}.apk"

@@ -27,7 +27,7 @@ jobs:
       # ubuntu-latest ships Gradle; use it to generate the full wrapper (including
       # gradle-wrapper.jar) so ./gradlew works for all subsequent steps.
       - name: Generate Gradle wrapper
-        run: gradle wrapper --gradle-version 8.6 --distribution-type bin
+        run: gradle wrapper --gradle-version 9.5.1 --distribution-type bin
 
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest

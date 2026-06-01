@@ -46,6 +46,9 @@ jobs:
             app/build/outputs/apk/release/app-release-unsigned.apk
           rm private.der cert.pem
 
+      - name: Install qrencode
+        run: sudo apt-get install -y qrencode
+
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -53,17 +56,19 @@ jobs:
           TAG="${{ github.ref_name }}"
           REPO="${{ github.repository }}"
           APK_URL="https://github.com/${REPO}/releases/download/${TAG}/SubbySound-${TAG}.apk"
-          ENCODED_URL=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$APK_URL")
-          QR_URL="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ENCODED_URL}"
+          QR_ASSET_URL="https://github.com/${REPO}/releases/download/${TAG}/qr.png"
+
+          qrencode -o qr.png -s 10 "$APK_URL"
 
           gh api "repos/${REPO}/releases/generate-notes" \
             --method POST \
             -f tag_name="${TAG}" \
             --jq '.body' > notes.md || echo "" > notes.md
 
-          printf '\n\n## Download\n\nScan to install the APK directly on your device:\n\n![QR Code](%s)\n' "$QR_URL" >> notes.md
+          printf '\n\n## Download\n\nScan to install the APK directly on your device:\n\n![QR Code](%s)\n' "$QR_ASSET_URL" >> notes.md
 
           gh release create "${TAG}" \
             --title "SubbySound ${TAG}" \
             --notes-file notes.md \
-            "app/build/outputs/apk/release/subbysound-signed.apk#SubbySound-${TAG}.apk"
+            "app/build/outputs/apk/release/subbysound-signed.apk#SubbySound-${TAG}.apk" \
+            "qr.png#qr.png"

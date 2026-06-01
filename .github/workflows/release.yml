@@ -29,7 +29,7 @@ jobs:
         run: gradle wrapper --gradle-version 8.6 --distribution-type bin
 
       - name: Decode keystore
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > ${{ github.workspace }}/subbysound-release.jks
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | tr -d ' \r\n' | base64 -d > ${{ github.workspace }}/subbysound-release.jks
 
       - name: Build release APK
         env:
@@ -37,7 +37,7 @@ jobs:
           KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASS: ${{ secrets.KEY_PASS }}
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease -Dorg.gradle.jvmargs="-Dkeystore.pkcs12.legacy"
 
       - name: Create GitHub Release
         env:

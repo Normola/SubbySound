@@ -28,17 +28,26 @@ jobs:
       - name: Generate Gradle wrapper
         run: gradle wrapper --gradle-version 8.6 --distribution-type bin
 
+      - name: Build unsigned release APK
+        run: ./gradlew assembleRelease
+
       - name: Decode keystore
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | tr -d ' \r\n' | base64 -d > ${{ github.workspace }}/subbysound-release.jks
 
-      - name: Build release APK
+      - name: Sign APK
         env:
-          KEYSTORE_PATH: ${{ github.workspace }}/subbysound-release.jks
           KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASS: ${{ secrets.KEY_PASS }}
-          JAVA_TOOL_OPTIONS: "-Dkeystore.pkcs12.legacy"
-        run: ./gradlew assembleRelease
+        run: |
+          BUILD_TOOLS=$(ls $ANDROID_SDK_ROOT/build-tools | sort -V | tail -1)
+          $ANDROID_SDK_ROOT/build-tools/$BUILD_TOOLS/apksigner sign \
+            --ks ${{ github.workspace }}/subbysound-release.jks \
+            --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass "pass:$KEYSTORE_PASS" \
+            --key-pass "pass:$KEY_PASS" \
+            --out app/build/outputs/apk/release/subbysound-signed.apk \
+            app/build/outputs/apk/release/app-release-unsigned.apk
 
       - name: Create GitHub Release
         env:
@@ -46,7 +55,6 @@ jobs:
         run: |
           TAG="${{ github.ref_name }}"
           REPO="${{ github.repository }}"
-          APK_FILE=$(ls app/build/outputs/apk/release/*.apk | head -1)
           APK_URL="https://github.com/${REPO}/releases/download/${TAG}/SubbySound-${TAG}.apk"
           ENCODED_URL=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$APK_URL")
           QR_URL="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ENCODED_URL}"
@@ -61,4 +69,4 @@ jobs:
           gh release create "${TAG}" \
             --title "SubbySound ${TAG}" \
             --notes-file notes.md \
-            "${APK_FILE}#SubbySound-${TAG}.apk"
+            "app/build/outputs/apk/release/subbysound-signed.apk#SubbySound-${TAG}.apk"

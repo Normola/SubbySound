@@ -37,7 +37,8 @@ jobs:
           KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASS: ${{ secrets.KEY_PASS }}
-        run: ./gradlew assembleRelease -Dorg.gradle.jvmargs="-Dkeystore.pkcs12.legacy"
+          JAVA_TOOL_OPTIONS: "-Dkeystore.pkcs12.legacy"
+        run: ./gradlew assembleRelease
 
       - name: Create GitHub Release
         env:

@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Generate Gradle wrapper
+        run: gradle wrapper --gradle-version 8.6 --distribution-type bin
+
+      - name: Decode keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > ${{ github.workspace }}/subbysound-release.jks
+
+      - name: Build release APK
+        env:
+          KEYSTORE_PATH: ${{ github.workspace }}/subbysound-release.jks
+          KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.KEY_PASS }}
+        run: ./gradlew assembleRelease
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.ref_name }}"
+          REPO="${{ github.repository }}"
+          APK_URL="https://github.com/${REPO}/releases/download/${TAG}/SubbySound-${TAG}.apk"
+          ENCODED_URL=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$APK_URL")
+          QR_URL="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ENCODED_URL}"
+
+          gh api "repos/${REPO}/releases/generate-notes" \
+            --method POST \
+            -f tag_name="${TAG}" \
+            --jq '.body' > notes.md
+
+          printf '\n\n## Download\n\nScan to install the APK directly on your device:\n\n![QR Code](%s)\n' "$QR_URL" >> notes.md
+
+          gh release create "${TAG}" \
+            --title "SubbySound ${TAG}" \
+            --notes-file notes.md \
+            "app/build/outputs/apk/release/*.apk#SubbySound-${TAG}.apk"

@@ -55,7 +55,7 @@ jobs:
         run: |
           TAG="${{ github.ref_name }}"
           REPO="${{ github.repository }}"
-          APK_URL="https://github.com/${REPO}/releases/download/${TAG}/SubbySound-${TAG}.apk"
+          APK_URL="https://github.com/${REPO}/releases/download/${TAG}/SubbySound-${TAG}-signed.apk"
           QR_ASSET_URL="https://github.com/${REPO}/releases/download/${TAG}/qr.png"
 
           qrencode -o qr.png -s 10 "$APK_URL"
@@ -67,8 +67,11 @@ jobs:
 
           printf '\n\n## Download\n\nScan to install the APK directly on your device:\n\n![QR Code](%s)\n' "$QR_ASSET_URL" >> notes.md
 
+          APK_NAME="SubbySound-${TAG}-signed.apk"
+          cp app/build/outputs/apk/release/subbysound-signed.apk "$APK_NAME"
+
           gh release create "${TAG}" \
             --title "SubbySound ${TAG}" \
             --notes-file notes.md \
-            "app/build/outputs/apk/release/subbysound-signed.apk#SubbySound-${TAG}.apk" \
-            "qr.png#qr.png"
+            "$APK_NAME" \
+            "qr.png"

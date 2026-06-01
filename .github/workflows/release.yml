@@ -31,23 +31,20 @@ jobs:
       - name: Build unsigned release APK
         run: ./gradlew assembleRelease
 
-      - name: Decode keystore
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | tr -d ' \r\n' | base64 -d > ${{ github.workspace }}/subbysound-release.jks
-
       - name: Sign APK
         env:
-          KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASS: ${{ secrets.KEY_PASS }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_CERT: ${{ secrets.SIGNING_CERT }}
         run: |
+          echo "$SIGNING_KEY" > private.pem
+          echo "$SIGNING_CERT" > cert.pem
           BUILD_TOOLS=$(ls $ANDROID_SDK_ROOT/build-tools | sort -V | tail -1)
           $ANDROID_SDK_ROOT/build-tools/$BUILD_TOOLS/apksigner sign \
-            --ks ${{ github.workspace }}/subbysound-release.jks \
-            --ks-key-alias "$KEY_ALIAS" \
-            --ks-pass "pass:$KEYSTORE_PASS" \
-            --key-pass "pass:$KEY_PASS" \
+            --key private.pem \
+            --cert cert.pem \
             --out app/build/outputs/apk/release/subbysound-signed.apk \
             app/build/outputs/apk/release/app-release-unsigned.apk
+          rm private.pem cert.pem
 
       - name: Create GitHub Release
         env:
